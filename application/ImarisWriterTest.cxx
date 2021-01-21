@@ -21,6 +21,9 @@
 
 #include <random>
 
+
+#include <sys/time.h>
+
 #if defined(_WIN32)
 #include <windows.h>
 #elif defined(__APPLE__)
@@ -64,7 +67,9 @@ bpUInt64 PerformanceCounter()
   return static_cast<bpUInt64>(vTime.QuadPart);
 #else
   struct timespec vTimeSpec;
-  clock_gettime(CLOCK_MONOTONIC, &vTimeSpec);
+  //clock_gettime(CLOCK_MONOTONIC, &vTimeSpec);
+  localtime((const long *)&vTimeSpec);
+  //gettimeofday(&vTimeSpec, NULL);
   return vTimeSpec.tv_sec + vTimeSpec.tv_nsec / 1000000000.0;
 #endif
 }
@@ -90,6 +95,11 @@ int main(int argc, char* argv[])
     vCommandLine.allowArgument("sizez", "Image Size Z (default 1)", 1);
     vCommandLine.allowArgument("sizet", "Image Size T (default 1)", 1);
     vCommandLine.allowArgument("sizec", "Image Size C (default 1)", 1);
+    vCommandLine.allowArgument("chunkx", "Chunk Size X (default 256)", 1);
+    vCommandLine.allowArgument("chunky", "Chunk Size Y (default 256)", 1);
+    vCommandLine.allowArgument("chunkz", "Chunk Size Z (default 8)", 1);
+    vCommandLine.allowArgument("chunkct", "Chunk Size T (default 1)", 1);
+    vCommandLine.allowArgument("chunkc", "Chunk Size C (default 1)", 1);
     vCommandLine.allowArgument("threads", "Number of Threads (default 8)", 1);
     vCommandLine.allowArgument("compression", "Compression type and level (default 2)", 1);
     vCommandLine.allowArgument("logfile", "Log File Path", 1);
@@ -146,6 +156,27 @@ int main(int argc, char* argv[])
     }
     else {
       std::cerr << "Using default sizec 1\n";
+    }
+
+    bpSize vChunkSizeX(256);
+    if (vCommandLine.Found("chunkx")) {
+      vCommandLine.GetValue("chunkx", vChunkSizeX);
+    }
+    bpSize vChunkSizeY(256);
+    if (vCommandLine.Found("chunky")) {
+      vCommandLine.GetValue("chunky", vChunkSizeY);
+    }
+    bpSize vChunkSizeZ(8);
+    if (vCommandLine.Found("chunkz")) {
+      vCommandLine.GetValue("chunkz", vChunkSizeZ);
+    }
+    bpSize vChunkSizeT(1);
+    if (vCommandLine.Found("chunkt")) {
+      vCommandLine.GetValue("chunkt", vChunkSizeT);
+    }
+    bpSize vChunkSizeC(1);
+    if (vCommandLine.Found("chunkc")) {
+      vCommandLine.GetValue("chunkc", vChunkSizeC);
     }
 
     bpSize vNumberOfThreads(8);
@@ -238,7 +269,7 @@ int main(int argc, char* argv[])
       //bpConverterTypes::tDimensionSequence5D vDimensionSequence(bpConverterTypes::X, bpConverterTypes::Y, bpConverterTypes::Z, bpConverterTypes::C, bpConverterTypes::T);
       bpConverterTypes::tSize5D vSample(bpConverterTypes::X, 1, bpConverterTypes::Y, 1, bpConverterTypes::Z, 1, bpConverterTypes::C, 1, bpConverterTypes::T, 1);
       //bpConverterTypes::tSize5D vInputBlockSize5D(bpConverterTypes::X, 256, bpConverterTypes::Y, 64, bpConverterTypes::Z, 32, bpConverterTypes::C, 1, bpConverterTypes::T, 1);
-      bpConverterTypes::tSize5D vInputBlockSize5D(bpConverterTypes::X, 256, bpConverterTypes::Y, 256, bpConverterTypes::Z, 8, bpConverterTypes::C, 1, bpConverterTypes::T, 1);
+      bpConverterTypes::tSize5D vInputBlockSize5D(bpConverterTypes::X, vChunkSizeX, bpConverterTypes::Y, vChunkSizeY, bpConverterTypes::Z, vChunkSizeZ, bpConverterTypes::C, vChunkSizeC, bpConverterTypes::T, vChunkSizeT);
       //bpConverterTypes::tSize5D vInputBlockSize5D(bpConverterTypes::X, 512, bpConverterTypes::Y, 512, bpConverterTypes::Z, 1, bpConverterTypes::C, 1, bpConverterTypes::T, 1);
       bpSize vInputBlockSize = vInputBlockSize5D[bpConverterTypes::X] * vInputBlockSize5D[bpConverterTypes::Y] * vInputBlockSize5D[bpConverterTypes::Z] * vInputBlockSize5D[bpConverterTypes::C] * vInputBlockSize5D[bpConverterTypes::T];
       bpSize vNBlocksX = (vImageSize[bpConverterTypes::X] - 1) / vInputBlockSize5D[bpConverterTypes::X] + 1;
@@ -317,7 +348,7 @@ int main(int argc, char* argv[])
       //bpConverterTypes::tDimensionSequence5D vDimensionSequence(bpConverterTypes::X, bpConverterTypes::Y, bpConverterTypes::Z, bpConverterTypes::C, bpConverterTypes::T);
       bpConverterTypes::tSize5D vSample(bpConverterTypes::X, 1, bpConverterTypes::Y, 1, bpConverterTypes::Z, 1, bpConverterTypes::C, 1, bpConverterTypes::T, 1);
       //bpConverterTypes::tSize5D vInputBlockSize5D(bpConverterTypes::X, 256, bpConverterTypes::Y, 64, bpConverterTypes::Z, 32, bpConverterTypes::C, 1, bpConverterTypes::T, 1);
-      bpConverterTypes::tSize5D vInputBlockSize5D(bpConverterTypes::X, 512, bpConverterTypes::Y, 512, bpConverterTypes::Z, 1, bpConverterTypes::C, 1, bpConverterTypes::T, 1);
+      bpConverterTypes::tSize5D vInputBlockSize5D(bpConverterTypes::X, vChunkSizeX, bpConverterTypes::Y, vChunkSizeY, bpConverterTypes::Z, vChunkSizeZ, bpConverterTypes::C, vChunkSizeC, bpConverterTypes::T, vChunkSizeT);
       bpSize vInputBlockSize = vInputBlockSize5D[bpConverterTypes::X] * vInputBlockSize5D[bpConverterTypes::Y] * vInputBlockSize5D[bpConverterTypes::Z] * vInputBlockSize5D[bpConverterTypes::C] * vInputBlockSize5D[bpConverterTypes::T];
       bpSize vNBlocksX = (vImageSize[bpConverterTypes::X] - 1) / vInputBlockSize5D[bpConverterTypes::X] + 1;
       bpSize vNBlocksY = (vImageSize[bpConverterTypes::Y] - 1) / vInputBlockSize5D[bpConverterTypes::Y] + 1;
@@ -386,7 +417,7 @@ int main(int argc, char* argv[])
       //bpConverterTypes::tDimensionSequence5D vDimensionSequence(bpConverterTypes::X, bpConverterTypes::Y, bpConverterTypes::Z, bpConverterTypes::C, bpConverterTypes::T);
       bpConverterTypes::tSize5D vSample(bpConverterTypes::X, 1, bpConverterTypes::Y, 1, bpConverterTypes::Z, 1, bpConverterTypes::C, 1, bpConverterTypes::T, 1);
       //bpConverterTypes::tSize5D vInputBlockSize5D(bpConverterTypes::X, 256, bpConverterTypes::Y, 64, bpConverterTypes::Z, 32, bpConverterTypes::C, 1, bpConverterTypes::T, 1);
-      bpConverterTypes::tSize5D vInputBlockSize5D(bpConverterTypes::X, 512, bpConverterTypes::Y, 512, bpConverterTypes::Z, 1, bpConverterTypes::C, 1, bpConverterTypes::T, 1);
+      bpConverterTypes::tSize5D vInputBlockSize5D(bpConverterTypes::X, vChunkSizeX, bpConverterTypes::Y, vChunkSizeY, bpConverterTypes::Z, vChunkSizeZ, bpConverterTypes::C, vChunkSizeC, bpConverterTypes::T, vChunkSizeT);
       bpSize vInputBlockSize = vInputBlockSize5D[bpConverterTypes::X] * vInputBlockSize5D[bpConverterTypes::Y] * vInputBlockSize5D[bpConverterTypes::Z] * vInputBlockSize5D[bpConverterTypes::C] * vInputBlockSize5D[bpConverterTypes::T];
       bpSize vNBlocksX = (vImageSize[bpConverterTypes::X] - 1) / vInputBlockSize5D[bpConverterTypes::X] + 1;
       bpSize vNBlocksY = (vImageSize[bpConverterTypes::Y] - 1) / vInputBlockSize5D[bpConverterTypes::Y] + 1;
