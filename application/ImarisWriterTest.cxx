@@ -281,26 +281,15 @@ int main(int argc, char* argv[])
       bpSize vImageSizeInMB = vImageSizePixels * sizeof(bpUInt16) / 1024 / 1024 ;
       bpString vOutputFile = vOutputFilePath;
 
-      bpUInt16* vFileBlock = new bpUInt16[vInputBlockSize];
+      bpUInt16* vFileBlock = new bpUInt16[2 * vInputBlockSize];
       std::mt19937 mt(vRandSeed);
       std::normal_distribution<> dist(100.0, 40.0);
       std::uniform_int_distribution<> uniform(0, vInputBlockSize);
       double vPrevious = dist(mt);
       bpFloat vCorrelationCoefficient = 0.7f;
-      int x = 0;
-      int y = 0;
-      int z = 0;
-      for (bpSize vVoxelIndex = 0; vVoxelIndex < vInputBlockSize; ++vVoxelIndex) {
-        x++;
-        if (x >= vInputBlockSize5D[bpConverterTypes::X]) {
-		x = 0;
-		y++;
-	}
-        if (y >= vInputBlockSize5D[bpConverterTypes::Y]) {
-		y = 0;
-		z++;
-	}
-        vFileBlock[vVoxelIndex] = x + y + z;
+      for (bpSize vVoxelIndex = 0; vVoxelIndex < 2 * vInputBlockSize; ++vVoxelIndex) {
+        double vRandom = (1 - vCorrelationCoefficient) * dist(mt) + vCorrelationCoefficient * vPrevious;
+        vFileBlock[vVoxelIndex] = vRandom > 0 ? (vRandom < (1 << 12) ? vRandom : (1<<12)) : 0;
       }
       bpUInt64 vFrequency = PerformanceFrequency();
       bpUInt64 vStartTime = 0;
@@ -327,7 +316,7 @@ int main(int argc, char* argv[])
                 for (bpSize vBlockIndexX = 0; vBlockIndexX < vNBlocksX; vBlockIndexX++) {
                   vBlockIndex[bpConverterTypes::X] = vBlockIndexX;
                   bpSize vRandomOffset = uniform(mt);
-                  vImageConverter.CopyBlock(vFileBlock + 0, vBlockIndex);
+                  vImageConverter.CopyBlock(vFileBlock + vRandomOffset, vBlockIndex);
                 }
               }
             }
@@ -371,26 +360,15 @@ int main(int argc, char* argv[])
       bpSize vImageSizeInMB = vImageSizePixels * sizeof(bpUInt8) / 1024 / 1024;
       bpString vOutputFile = vOutputFilePath;
 
-      bpUInt8* vFileBlock = new bpUInt8[vInputBlockSize];
+      bpUInt8* vFileBlock = new bpUInt8[2 * vInputBlockSize];
       std::mt19937 mt(vRandSeed);
       std::normal_distribution<> dist(100.0, 40.0);
       std::uniform_int_distribution<> uniform(0, vInputBlockSize);
       double vPrevious = dist(mt);
       bpFloat vCorrelationCoefficient = 0.7f;
-      int x = 0;
-      int y = 0;
-      int z = 0;
-      for (bpSize vVoxelIndex = 0; vVoxelIndex < vInputBlockSize; ++vVoxelIndex) {
-        x++;
-        if (x >= vInputBlockSize5D[bpConverterTypes::X]) {
-		x = 0;
-		y++;
-	}
-        if (y >= vInputBlockSize5D[bpConverterTypes::Y]) {
-		y = 0;
-		z++;
-	}
-        vFileBlock[vVoxelIndex] = x + y + z;
+      for (bpSize vVoxelIndex = 0; vVoxelIndex < 2 * vInputBlockSize; ++vVoxelIndex) {
+        double vRandom = (1 - vCorrelationCoefficient) * dist(mt) + vCorrelationCoefficient * vPrevious;
+        vFileBlock[vVoxelIndex] = vRandom > 0 ? (vRandom < (1 << 12) ? vRandom : (1 << 12)) : 0;
       }
       bpUInt64 vFrequency = PerformanceFrequency();
       bpUInt64 vStartTime = 0;
@@ -408,7 +386,7 @@ int main(int argc, char* argv[])
         bpConverterTypes::tIndex5D vBlockIndex(bpConverterTypes::X, 0, bpConverterTypes::Y, 0, bpConverterTypes::Z, 0, bpConverterTypes::C, 0, bpConverterTypes::T, 0);
         for (bpSize vIndex = 0; vIndex < vNBlocks; vIndex++) {
           bpSize vRandomOffset = uniform(mt);
-          vImageConverter.CopyBlock(vFileBlock + 0, vBlockIndex);
+          vImageConverter.CopyBlock(vFileBlock + vRandomOffset, vBlockIndex);
         }
 
         bpConverterTypes::tColorInfoVector vColorInfoPerChannel;
@@ -451,26 +429,15 @@ int main(int argc, char* argv[])
       bpSize vImageSizeInMB = vImageSizePixels * sizeof(bpUInt32) / 1024 / 1024;
       bpString vOutputFile = vOutputFilePath;
 
-      bpUInt32* vFileBlock = new bpUInt32[vInputBlockSize];
+      bpUInt32* vFileBlock = new bpUInt32[2 * vInputBlockSize];
       std::mt19937 mt(vRandSeed);
       std::normal_distribution<> dist(3000.0, 400.0);
       std::uniform_int_distribution<> uniform(0, vInputBlockSize);
       double vPrevious = dist(mt);
       bpFloat vCorrelationCoefficient = 0.7f;
-      int x = 0;
-      int y = 0;
-      int z = 0;
-      for (bpSize vVoxelIndex = 0; vVoxelIndex < vInputBlockSize; ++vVoxelIndex) {
-        x++;
-        if (x >= vInputBlockSize5D[bpConverterTypes::X]) {
-		x = 0;
-		y++;
-	}
-        if (y >= vInputBlockSize5D[bpConverterTypes::Y]) {
-		y = 0;
-		z++;
-	}
-        vFileBlock[vVoxelIndex] = x + y + z;
+      for (bpSize vVoxelIndex = 0; vVoxelIndex < 2 * vInputBlockSize; ++vVoxelIndex) {
+        double vRandom = (1 - vCorrelationCoefficient) * dist(mt) + vCorrelationCoefficient * vPrevious;
+        vFileBlock[vVoxelIndex] = vRandom > 0 ? (vRandom < (1 << 12) ? vRandom : (1 << 12)) : 0;
       }
       bpUInt64 vFrequency = PerformanceFrequency();
       bpUInt64 vStartTime = 0;
@@ -488,7 +455,7 @@ int main(int argc, char* argv[])
         bpConverterTypes::tIndex5D vBlockIndex(bpConverterTypes::X, 0, bpConverterTypes::Y, 0, bpConverterTypes::Z, 0, bpConverterTypes::C, 0, bpConverterTypes::T, 0);
         for (bpSize vIndex = 0; vIndex < vNBlocks; vIndex++) {
           bpSize vRandomOffset = uniform(mt);
-          vImageConverter.CopyBlock(vFileBlock + 0, vBlockIndex);
+          vImageConverter.CopyBlock(vFileBlock + vRandomOffset, vBlockIndex);
         }
 
         bpConverterTypes::tColorInfoVector vColorInfoPerChannel(vImageSize[bpConverterTypes::C]);
